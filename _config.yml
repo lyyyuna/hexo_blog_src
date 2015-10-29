@@ -80,5 +80,4 @@ duoshuo_shortname: lyyyuna
 backup:
     type: git
     theme: landscape
-    repository:
-       github: git@github.com:lyyyuna/lyyyuna.github.io.git,backup
+    repository: git@github.com:lyyyuna/lyyyuna.github.io.git,backup
