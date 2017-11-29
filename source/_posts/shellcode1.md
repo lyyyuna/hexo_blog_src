@@ -1,5 +1,7 @@
 title: shellcode学习-绕过条件判断
 date: 2015-08-30 16:36:38
+categories:
+- 系统
 tags: shellcode
 ---
 

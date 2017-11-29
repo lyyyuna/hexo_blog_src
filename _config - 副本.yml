@@ -12,7 +12,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://www.lyyyuna.com
+url: http://lyyyuna.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -63,14 +63,17 @@ pagination_dir: page
 # Extensions
 ## Plugins: http://hexo.io/plugins/
 ## Themes: http://hexo.io/themes/
-theme: jacman
-stylus:
-  compress: true
+theme: landscape
 
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
-- type: git
+  type: git
   repository: git@github.com:lyyyuna/lyyyuna.github.io.git
   branch: master
+
+
+# duoshuo
+duoshuo_shortname: lyyyuna
+
 
