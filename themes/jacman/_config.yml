@@ -17,7 +17,7 @@ widgets:
 - category
 - tag
 - links
-- douban
+#- douban
 - rss
 #- weibo
   ## provide eight widgets:github-card,category,tag,rss,archive,tagcloud,links,weibo
@@ -82,7 +82,8 @@ toc:
 
 #### Links
 links:
-  加一的城堡: http://www.mjyplusone.com
+  自动化测试: http://www.lihulab.net
+  蠡湖实验室 OJ: http://oj.lihulab.net
 
 
 #### Comment
