@@ -6,17 +6,17 @@ I am from China.
 
 ## 工作经历
 
-### 2015 - 2017, 趋势科技 (Trend Micro)
+### 2015 - 2019, 趋势科技 (Trend Micro)
 
-Deep Discovery Email Inspector 组，QA。
+Deep Discovery Email Inspector 组，QA/RD/SEG。
 
 这是一个邮件网关产品，主要功能是扫描病毒威胁、垃圾邮件防护。
 
-### 2017 - , 趋势科技 (Trend Micro) 
-
-Deep Discovery Email Inspector 组，SEG。
-
 维护已发布的版本，出补丁。
+
+### 2019 - , 七牛云
+
+IOT 视频云 组，测试开发。
 
 ## 联系方式
 
