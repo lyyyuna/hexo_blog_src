@@ -47,21 +47,19 @@ $ go get -u C
 
 自从`goinstall/go get`推出之后，Go 程序员就对版本管理有着强烈的诉求，过去几年间，很多第三方的工具被开发出来。然而，这些工具对版本控制的细节有着不同的实现和理解，这会导致不同的库若使用不同的工具，库之间仍然无法协同工作。
 
-不光是为了解决`go get`使用过旧过新库的问题，我们需要把包版本管理作为 Go 整个生态的特性。比如，[Go 模块镜像和校验数据库](https://blog.golang.org/modules-mirror-launch)加速了 Go 包的下载，新的[官方 Go 包搜索站](https://blog.golang.org/go.dev#Explore)强调了版本的意义。
-
 ## 软件工程中的版本
 
-过去两年间（2019），我们在`go`命令中使用`Go moduless`的形式来支持版本管理。Go 模块引入新的库导入语法——即语义化导入版本(Semantic import versioning)，该语法在选择版本时，使用了新的算法——即最小版本选择算法。
+过去两年间（2019），官方试图在`go`命令中引入`Go moduless`的概念来支持版本管理。`Go moduless`带来新的库导入语法——即语义化导入版本(Semantic import versioning)，而在选择版本时，使用了新的算法——即最小版本选择算法。
 
 你可能会问：为什么不使用其他语言的现成经验？Java 有`Maven`，Node 有`NPM`，Ruby 有`Bundler`，Rust 有`Cargo`，他们解决版本依赖的思路不好么？
 
 你可能还会问：Go 团队在 2018 早些时候引入了一个试验性的工具`Dep`，该工具实现上与`Bundler`和`Cargo`一致，现在为啥又变卦了？
 
-答案是，我们从使用`Bundler`/`Cargo`/`Dep`的经验中发现，它们处理依赖的方法，会导致软件工程越来越复杂，越来越有又挑战性。正因为如此，`go moduless`Go 模块采取了许许多多不同决定。
+答案是，我们从使用`Bundler`/`Cargo`/`Dep`的经验中发现，它们处理依赖的方法，会使项目越来越复杂，越来越有难以维护。正因为如此，`go moduless`Go 模块采取了许许多多不同决定。
 
 ## 三原则
 
-回到一个很基础的问题：什么是软件工程？软件工程和光编程有什么区别？原作者 Russ Cox 使用了这个定义：
+回到一个很基础的问题：什么是软件工程？软件工程和编程有什么区别？原作者 Russ Cox 使用了这个定义：
 
 > Software engineering is what happens to programming
 > when you add time and other programmers.
