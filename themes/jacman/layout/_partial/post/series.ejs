@@ -1,0 +1,9 @@
+<% if (item.series){ %>
+    <div class="article-content"><%= item.series %> - 系列文章:
+        <% site.posts.sort('date').map(function(p){ %>
+            <% if (item.series == p.series){ %>
+                <li> <a href="<%- url_for(p.path) %>"><%= p.title %></li>
+            <% } %>
+        <% }) %>
+    </div>
+<% } %>

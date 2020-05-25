@@ -4,6 +4,7 @@
       <a href="<%- item.link %>" target="_blank" title="<%= item.title %>"><%= item.title %></a><% } else { %>
       <a href="<%- config.root %><%- item.path %>" title="<%= item.title %>" itemprop="url"><%= item.title %></a><% } %>
   </h1>
+  <%- partial('series') %>
   <p class="article-author">By
        <% if(theme.author.google_plus){ %>
 		<a href="https://plus.google.com/<%=theme.author.google_plus %>?rel=author" title="<%= config.author %>" target="_blank" itemprop="author"><%= config.author %></a>
