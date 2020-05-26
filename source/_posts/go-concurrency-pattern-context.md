@@ -38,3 +38,15 @@ type Context interface {
     Value(key interface{}) interface{}
 }
 ```
+
+`Done`方法返回一个 channel，它会给`Context`上所有的函数发送取消信号，当 channel 关闭时，这些函数应该终止剩余流程立即返回。`Err`方法返回的错误指出了`Context`为什么取消。[Pipelines and Cancelation](https://blog.golang.org/pipelines)中讨论了`Done`的具体用法。
+
+由于接收和发送信号的通常不是同一个函数，`Context`并没有提供`Cancel`方法，基于相同的理由，`Done`channel 只负责接收。尤其当父操作开启 goroutines 执行子操作时，子操作肯定不能取消父操作。作为替代，`WithCancel`函数可以用来取消`Context`。
+
+`Context`对 goroutines 来说是并发安全的，你可以将单个`Context`传递给任意数量的 goroutines，然后撤销该`Context`给它们同时发送信号。
+
+`Deadline`方法允许函数决定是否继续运行，如果时间快到了，运行也就没必要了。代码可依此为 I/O 操作设置超时时间。
+
+`Value`方法则为`Context`携带了请求所有的数据，这些数据也必须是并发安全的。
+
+## Context 继承
