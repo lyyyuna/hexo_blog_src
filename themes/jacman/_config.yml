@@ -15,7 +15,7 @@ menu:
 widgets: 
 - github-card
 - category
-- tag
+#- tag
 - links
 #- douban
 - rss
@@ -82,8 +82,6 @@ toc:
 
 #### Links
 links:
-  自动化测试: http://www.lihulab.net
-  蠡湖实验室 OJ: http://oj.lihulab.net
 
 
 #### Comment

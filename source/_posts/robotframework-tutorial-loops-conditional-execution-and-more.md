@@ -1,7 +1,7 @@
 title: Robot Framework 教程 - 循环，条件判断，字符串和列表（译）
 date: 2016-05-28 09:05:09
 categories:
-- 自动化测试
+- 测试
 tags: robot framework
 ---
 

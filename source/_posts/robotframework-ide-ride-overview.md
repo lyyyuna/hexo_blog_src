@@ -1,7 +1,7 @@
 title: Robot Framework 教程 - 集成开发环境 RIDE 概览 (译)
 date: 2016-04-30 15:30:49
 categories:
-- 自动化测试
+- 测试
 tags: robot framework
 ---
 

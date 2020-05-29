@@ -1,7 +1,7 @@
 title: Robot Framework 快速入门指南
 date: 2015-12-28 20:20:34
 categories:
-- 自动化测试
+- 测试
 tags: robot framework
 ---
 

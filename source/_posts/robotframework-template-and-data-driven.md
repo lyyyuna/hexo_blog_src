@@ -1,7 +1,7 @@
 title: Robot Framework 模板与数据驱动测试
 date: 2016-07-29 19:59:52
 categories:
-- 自动化测试
+- 测试
 tags: 
 - robot framework
 ---

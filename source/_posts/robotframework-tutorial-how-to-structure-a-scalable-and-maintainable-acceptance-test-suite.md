@@ -1,7 +1,7 @@
 title: Robot Framework 教程 - 如何组织一个可伸缩可维护的验收测试套件（译）
 date: 2016-05-15 10:56:18
 categories:
-- 自动化测试
+- 测试
 tags: robot framework
 ---
 
