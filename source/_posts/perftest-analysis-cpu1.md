@@ -88,7 +88,7 @@ $ cat /proc/cpuinfo | grep processor
 
 ### CPU 密集型
 
-我们利用`stress`模拟一个 CPU 跑慢的场景：
+我们利用`stress`模拟一个 CPU 跑满的场景：
 
 ```
 $ stress --cpu 1 --timeout 600
