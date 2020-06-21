@@ -11,7 +11,7 @@ series: Linux 性能分析
 
 [上一篇文章](/2020/05/29/perftest-analysis-cpu1/)中提到，处于可运行状态的进程越多，平均负载也越高。
 
-有人可能会有疑问，这种计算方法合理吗？同样是 100% 的 CPU 使用率，有 3 个可运行进程的系统的平均负载，是有 1 个可运行进程系统的负载的 3 倍？本文就试图从 CPU 上下文切换的角度来解释这一指标的合理性。
+有人可能会有疑问，这种计算方法合理吗？同样是 100% 的 CPU 使用率，有 10 个可运行进程的系统的平均负载，是有 1 个可运行进程系统的负载的 10 倍？本文就试图从 CPU 上下文切换的角度来解释这一指标的合理性。
 
 ## 上下文切换定义
 
@@ -73,19 +73,20 @@ CPU 是状态 + 存储的模型，其符合图灵机这种理想设备：
 
 有一点需要强调，虽然用`ps aux`能看到数百个进程，但并非意味着 Linux 需要在这数百个进程上切换。它们大部分处于睡眠状态，操作系统只会对处于可运行态的进程间作上下文切换。
 
-## 案例分析
+## 实验
 
-### 查看上下文切换
+### 工具
 
 vmstat 命令帮助文档虽然说是 Report virtual memory statistics，但其实它还能统计 CPU/中断/IO/缺页等使用情况。
 
-以下是该命令的一个输出：
+以下是该命令每隔 1 秒输出一次统计数据，输出 10 次（第一次的输出不可信）：
 
 ```
-➜  ~ vmstat
+➜  ~ vmstat 1 10
 procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
  0  0    524 2010216 1195432 10930004    0    0     0    50    1    2  4  2 92  3  0
+ ...
 ```
 
 我们需要关心的是：
@@ -94,6 +95,8 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 2. b，不可中断进程的个数
 3. in，每秒中断次数，包括时钟
 4. cs，每秒 CPU 上下文切换次数
+5. us，执行用户代码的时间
+6. sy，执行内核代码的时间
 
 vmstat 命令还不够，[上一篇文章](/2020/05/29/perftest-analysis-cpu1/)中介绍的 pidstat 可以看到进程上下文切换的数据：
 
@@ -139,4 +142,124 @@ Linux 4.15.0-96-generic (work) 	06/20/2020 	_x86_64_	(2 CPU)
 ...
 ```
 
-### 案例
+### 进程和线程的实验
+
+#### stress 进程切换实验
+
+我们回到最开始的问题，为什么同样是 100% 的 CPU 使用率，有 10 个可运行进程的系统的平均负载，是有 1 个可运行进程系统的负载的 10 倍？
+
+首先看一下 100% CPU，1 个可运行进程的上下文切换次数：
+
+```
+➜  ~ stress -c 1 -t 600
+stress: info: [6800] dispatching hogs: 1 cpu, 0 io, 0 vm, 0 hdd
+
+➜  ~ vmstat 1 20
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 1  0      0 294216 274960 2234876    0    0     0    24 2714 7362 54  1 45  0  0
+ 2  0      0 294208 274960 2234876    0    0     0    68 2327 6601 59  2 39  1  0
+ 2  0      0 294216 274960 2234880    0    0     0   116 1555 4465 53  2 45  0  1
+
+➜  ~ pidstat -w 1
+Average:      UID       PID   cswch/s nvcswch/s  Command
+Average:        0      9258      0.00     64.39  stress
+```
+
+首先看一下 100% CPU，10 个可运行进程的上下文切换次数：
+
+```
+➜  ~ stress -c 10 -t 600
+stress: info: [7024] dispatching hogs: 10 cpu, 0 io, 0 vm, 0 hdd
+
+➜  ~ vmstat 1 20
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+10  0      0 294972 274976 2234964    0    0     0    28 2097 5976 99  2  0  0  0
+13  0      0 294900 274976 2234976    0    0     0   176 2256 6545 98  2  0  0  0
+10  0      0 295040 274976 2234976    0    0     0    28 2254 6835 99  1  0  0  1
+
+➜  ~ pidstat -w 1
+Average:      UID       PID   cswch/s nvcswch/s  Command
+Average:        0      7025      0.00    160.97  stress
+Average:        0      7026      0.00    125.14  stress
+Average:        0      7027      0.00    136.82  stress
+Average:        0      7028      0.00    162.62  stress
+Average:        0      7029      0.00    121.83  stress
+Average:        0      7030      0.00    170.89  stress
+Average:        0      7031      0.00    114.99  stress
+Average:        0      7032      0.00    130.54  stress
+Average:        0      7033      0.00    165.38  stress
+Average:        0      7034      0.00    163.51  stress
+```
+
+光看 CPU 上下文切换次数似乎差不多，但进程被动上下文切换次数明显上升。我们之前了解到，CPU 切换的成本较小，进程的切换成本最高，这就是系统负载升高的原因。
+
+#### sysbench 线程切换实验
+
+stress 命令只能模拟多进程的系统压力，模拟多线程需要 sysbench 工具。
+
+运行以下命令模拟 10 个线程竞争：
+
+```
+➜  ~ sysbench --threads=10 --max-time=300 threads run
+
+➜  ~ uptime
+ 08:41:12 up 69 days,  5:33,  2 users,  load average: 6.32, 6.32, 6.73
+
+➜  ~ vmstat 1 20
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 8  0      0 292580 275072 2237844    0    0     0    28 15202 1234282 30 69  2  0  0
+ 8  0      0 292332 275072 2237848    0    0     0   224 18851 1221323 31 68  1  0  1
+ 8  0      0 292280 275072 2237848    0    0     0    28 16822 1177891 32 66  2  0  0
+
+➜  ~ pidstat -w -t 1 (需要加上 -t，否则不会统计线程的切换信息)
+Average:        0         -     11743  19613.96  96288.49  |__sysbench
+Average:        0         -     11744  20440.57  93726.42  |__sysbench
+Average:        0         -     11745  20680.38  99453.02  |__sysbench
+Average:        0         -     11746  19855.47  89219.06  |__sysbench
+Average:        0         -     11747  18738.49  97730.38  |__sysbench
+Average:        0         -     11748  14536.04  99870.75  |__sysbench
+Average:        0         -     11749  15928.11 103604.72  |__sysbench
+Average:        0         -     11750  18082.26  94775.66  |__sysbench
+Average:        0         -     11751  20995.66  89222.64  |__sysbench
+Average:        0         -     11752  20588.30  94581.89  |__sysbench
+```
+
+在多线程下，每秒 CPU 上下文切换次数达到了近 120 万，任务的自愿和非自愿切换同时升高。当然系统负载自然也就高了。
+
+#### 两者的不同
+
+同样是调度 10 个任务，stress 和 sysbench 为什么切换次数区别如此之大？可以从两方面解释：
+
+第一、同一个进程的线程间切换成本小，切换的频率可以升高。
+
+第二、sysbench 和 stress 模拟压力的方式不同：
+
+```
+➜  ~ sysbench threads help
+sysbench 1.0.11 (using system LuaJIT 2.1.0-beta3)
+
+threads options:
+  --thread-yields=N number of yields to do per request [1000]
+  --thread-locks=N  number of locks per thread [8]
+
+➜  ~ stress --help
+`stress' imposes certain types of compute stress on your system
+
+Usage: stress [OPTION [ARG]] ...
+ -c, --cpu N        spawn N workers spinning on sqrt()
+```
+
+1. sysbench 用线程同步方式 (lock) 和主动让出 CPU (yield) 来产生系统压力，属于自愿上下文切换，统计数据中自愿切换的次数非 0。
+2. stress 用 CPU 密集型操作 (求根 sqrt()) 来产生系统压力，属于非自愿上下文切换，统计数据中自愿切换的次数为 0。
+
+## 结论
+
+在 CPU 跑满，系统平均负载均很高的情况下，还是有多种可能的场景：
+
+1. 自愿上下文切换变多，说明被调度任务在等待资源，有可能发生了 IO 或任务间同步情况
+2. 非自愿上下文切换变多，说明被调度的任务被强制打断，任务在争抢使用 CPU
+
+然后通过 pidstat/vmstat 工具的组合可以分析出是多进程还是多线程。
