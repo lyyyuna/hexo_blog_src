@@ -1,4 +1,4 @@
-title: Linux 性能分析 - 再论平均负载
+title: Linux 性能分析 - 如何理解系统平均负载
 date: 2020-06-25 16:30:38
 categories:
 - 测试
