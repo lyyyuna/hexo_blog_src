@@ -1,7 +1,7 @@
 title: Golang 与子测试
 date: 2020-12-14 16:20:02
 categories:
-- 语言
+- 测试
 tags: 
 - Go
 ---
